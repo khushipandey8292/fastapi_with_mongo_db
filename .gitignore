@@ -1,0 +1,10 @@
+env/
+__pychache__/
+.__env__
+*.py[cod]
+dumb.rdb
+mongo-data/
+*.pid
+*.tar
+*.bak
+*.swp

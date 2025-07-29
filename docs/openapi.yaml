@@ -1,0 +1,444 @@
+openapi: 3.1.0
+info:
+  title: Company API
+  description: API for HR operations like attendance, salary, and leaves.
+  version: 1.0.0
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register
+      operationId: register_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_auth_login_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/{user_id}/promote:
+    patch:
+      tags:
+        - Users
+      summary: Promote User Role
+      operationId: promote_user_role_users__user_id__promote_patch
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: User Id
+        - name: new_role
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Role'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /peruser-attendance-record:
+    get:
+      tags:
+        - Attendance
+      summary: Get My Attendance
+      operationId: get_my_attendance_peruser_attendance_record_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AttendancePublic'
+                type: array
+                title: Response Get My Attendance Peruser Attendance Record Get
+      security:
+        - OAuth2PasswordBearer: []
+  /mark-our-attendance:
+    post:
+      tags:
+        - Attendance
+      summary: Mark Attendance
+      operationId: mark_attendance_mark_our_attendance_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: >-
+                #/components/schemas/Body_mark_attendance_mark_our_attendance_post
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /users_attendance_record:
+    get:
+      tags:
+        - Attendance
+      summary: Get All Attendance
+      operationId: get_all_attendance_users_attendance_record_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AttendancePublic'
+                type: array
+                title: Response Get All Attendance Users Attendance Record Get
+      security:
+        - OAuth2PasswordBearer: []
+  /calculate-salary:
+    get:
+      tags:
+        - salary
+      summary: Calculate Salary
+      operationId: calculate_salary_calculate_salary_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+        - OAuth2PasswordBearer: []
+  /holidays/:
+    post:
+      tags:
+        - Holiday
+      summary: Create Holiday
+      operationId: create_holiday_holidays__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HolidayCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HolidayPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /holidays/holidays:
+    get:
+      tags:
+        - Holiday
+      summary: List Holidays
+      operationId: list_holidays_holidays_holidays_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /:
+    get:
+      summary: Home
+      operationId: home__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AttendancePublic:
+      properties:
+        id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        user_name:
+          type: string
+          title: User Name
+        status:
+          $ref: '#/components/schemas/AttendanceStatus'
+        time:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Time
+      type: object
+      required:
+        - id
+        - user_id
+        - user_name
+        - status
+      title: AttendancePublic
+    AttendanceStatus:
+      type: string
+      enum:
+        - present
+        - casual-leave(cl)
+        - leave-without-pay(lwp)
+        - Half-day-leave(HDL)
+        - Full-day-leave(FDL)
+        - short_day
+        - absent
+      title: AttendanceStatus
+    Body_login_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+            - type: string
+              pattern: ^password$
+            - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          format: password
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+            - type: string
+            - type: 'null'
+          format: password
+          title: Client Secret
+      type: object
+      required:
+        - username
+        - password
+      title: Body_login_auth_login_post
+    Body_mark_attendance_mark_our_attendance_post:
+      properties:
+        status:
+          $ref: '#/components/schemas/AttendanceStatus'
+      type: object
+      required:
+        - status
+      title: Body_mark_attendance_mark_our_attendance_post
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HolidayCreate:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+        reason:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Reason
+          default: Holiday
+      type: object
+      required:
+        - date
+      title: HolidayCreate
+    HolidayPublic:
+      properties:
+        id:
+          type: string
+          title: Id
+        date:
+          type: string
+          format: date
+          title: Date
+        reason:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Reason
+      type: object
+      required:
+        - id
+        - date
+        - reason
+      title: HolidayPublic
+    Role:
+      type: string
+      enum:
+        - superadmin
+        - admin
+        - manager
+        - junior
+      title: Role
+    Token:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+      type: object
+      required:
+        - access_token
+        - token_type
+      title: Token
+    UserCreate:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        name:
+          type: string
+          title: Name
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+        - email
+        - name
+        - password
+      title: UserCreate
+    UserPublic:
+      properties:
+        id:
+          type: string
+          title: Id
+        email:
+          type: string
+          format: email
+          title: Email
+        name:
+          type: string
+          title: Name
+        role:
+          $ref: '#/components/schemas/Role'
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - role
+      title: UserPublic
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: http://localhost:8005/auth/login
+tags:
+  - name: Auth
+    description: User login, registration, and token handling.
+  - name: Attendance
+    description: >-
+      Mark attendance, view logs, and manage presence and apply, approve, and
+      reject leaves
+  - name: salary
+    description: Calculate and view salaries, deductions, and payslips.
+  - name: Holiday
+    description: Manage official company holidays.
+  - name: Users
+    description: Admin promote the users as a manager or admin.

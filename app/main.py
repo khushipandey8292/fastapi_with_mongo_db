@@ -1,12 +1,11 @@
 from fastapi import FastAPI
-from router.User import users
-from database import init_indexes
-from router.Holidays import holidays
-from router.Attendance import attendance
-from router.auth import auth_routes
-from router.Salary import salary
-from scheduler.schedular import start_scheduler
-from router.User import users
+# from app.database import init_indexes
+from app.router.Holidays import holidays
+from app.router.Attendance import attendance
+from app.router.auth import auth_routes
+from app.router.Salary import salary
+# from app.scheduler.schedular import start_scheduler
+from app.router.User import users
 
 app = FastAPI(title="Company API",
     version="1.0.0",
@@ -40,13 +39,13 @@ app.include_router(attendance.router)
 app.include_router(salary.router)
 app.include_router(holidays.router)
 
-@app.on_event("startup")
-async def startup():
-    await init_indexes()
+# @app.on_event("startup")
+# async def startup():
+#     await init_indexes()
 
-@app.on_event("startup")
-async def startup_event():
-    start_scheduler()
+# @app.on_event("startup")
+# async def startup_event():
+#     start_scheduler()
 
 @app.get("/")
 def home():

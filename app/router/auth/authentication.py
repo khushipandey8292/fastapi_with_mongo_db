@@ -13,8 +13,6 @@ app.add_middleware(
 app.include_router(authroute)
 
 
-
-
 @app.get("/auth")
 def read_auth():
     return {"msg": "Auth service is working!"}
